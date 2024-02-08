@@ -95,6 +95,13 @@ class SemanticChunker(BaseDocumentTransformer):
             {"sentence": x, "index": i} for i, x in enumerate(single_sentences_list)
         ]
         sentences = combine_sentences(sentences)
+
+        # If combining reduced the number of sentences to 1, return the single sentence
+        # having len(single_sentences_list) == 1 would cause the following
+        # np.percentile to fail.
+        if len(sentences) == 1:
+            return [sentences[0]["combined_sentence"]]
+
         embeddings = self.embeddings.embed_documents(
             [x["combined_sentence"] for x in sentences]
         )
